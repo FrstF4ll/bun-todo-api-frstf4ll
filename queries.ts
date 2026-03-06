@@ -1,4 +1,6 @@
-import db from "./db"
+import db from "./db";
+import { sql } from "bun";
+
 export const getTodos = () => {
     try {
         return db.query(`select * from todos`).all()
@@ -8,11 +10,12 @@ export const getTodos = () => {
     }
 };
 
-export const createTodo = () => {
+export const createTodo = async () => {
     try {
-        return db.query(`INSERT INTO todos(title, content, due_date, done)
-                             VALUES ($title, $content, $due_date, $done)`)
+        await sql`INSERT INTO todos(title, content, due_date, done)
+                             VALUES ($title, $content, $due_date, $done)
+                             RETURNING *`;
     } catch {
-        throw new Error("Failed to get datas")
+        throw new Error("Failed to post datas")
     }
 };
