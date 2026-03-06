@@ -1,7 +1,7 @@
 import { Database } from "bun:sqlite";
 
 const db = new Database("todolist.sqlite", { create: true });
-const query = db.query(`CREATE TABLE IF NOT EXISTS todos
+const create = db.query(`CREATE TABLE IF NOT EXISTS todos
 (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title VARCHAR(150) NOT NULL,
@@ -9,6 +9,8 @@ const query = db.query(`CREATE TABLE IF NOT EXISTS todos
     due_date VARCHAR(20),
     done BOOLEAN NOT NULL default 0
     )`);
-export const initDB = () => query.run();
+export const initDB = () => create.run();
+export const getDB = () => db.query(`select * from todos`).all()
+
 
 export default db;
