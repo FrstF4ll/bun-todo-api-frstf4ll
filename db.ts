@@ -9,6 +9,6 @@ const query = db.query(`CREATE TABLE IF NOT EXISTS todos
     due_date VARCHAR(20),
     done BOOLEAN NOT NULL default 0
     )`);
-query.run();
+export const initDB = () => query.run();
 
 export default db;
