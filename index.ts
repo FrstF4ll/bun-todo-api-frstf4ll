@@ -1,10 +1,12 @@
 import index from './index.html'
-import db, {initDB} from "./db.ts";
+import db, {initDB, getDB} from "./db.ts";
 initDB();
 const server = Bun.serve({
   port: 3000,
   routes: {
-    "/todos": index,
+    "/todos": {
+      GET: () => Response.json(getDB())
+    },
   }
 });
 
