@@ -1,5 +1,6 @@
 import index from './index.html'
-import { initDB, getTodos } from "./db.ts";
+import { initDB } from "./db.ts";
+import { getTodos } from './queries.ts';
 initDB();
 const server = Bun.serve({
   port: 3000,

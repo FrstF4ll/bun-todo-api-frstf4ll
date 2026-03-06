@@ -9,14 +9,5 @@ export const initDB = () => db.query(`CREATE TABLE IF NOT EXISTS todos
     due_date VARCHAR(20),
     done BOOLEAN NOT NULL default 0
     )`).run();
-export const getTodos = () => {
-    try {
-        return db.query(`select * from todos`).all()
-    }
-    catch {
-        throw new Error("Failed to get datas")
-    }
-}
-
 
 export default db;
