@@ -10,7 +10,7 @@ const create = db.query(`CREATE TABLE IF NOT EXISTS todos
     done BOOLEAN NOT NULL default 0
     )`);
 export const initDB = () => create.run();
-export const getDB = () => db.query(`select * from todos`).all()
+export const getTodos = () => db.query(`select * from todos`).all()
 
 
 export default db;
