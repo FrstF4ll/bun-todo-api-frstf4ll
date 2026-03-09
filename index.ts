@@ -28,7 +28,11 @@ const server = Bun.serve({
       DELETE: req => {
         const id = Number(req.params.id)
         const result = deleteTodo(id)
-      return Response.json(null, {status: 204})}
+        if(result.changes === 0){
+          return Response.json(null, {status: 404})
+        }
+      return Response.json(null, {status: 204})
+      }
     },
   }
 });
