@@ -1,6 +1,6 @@
 import { initDB } from "./db.ts";
-import {createTodo, getTodos} from './queries.ts';
-import {validateSchema} from "./valibot.ts";
+import { createTodo, getTodos } from './queries.ts';
+import { validateSchema } from "./valibot.ts";
 interface Todo {
   $title: string;
   $content: string | null;
@@ -15,13 +15,19 @@ const server = Bun.serve({
     "/todos": {
       GET: () => Response.json(getTodos()),
       POST: async req => {
-        const body = await req.json();
-        const validation = validateSchema(body)
-        if (!validation.success) {
-          return Response.json(validation.errors, {status: 400})
+        try {
+
+          const body = await req.json();
+          const validation = validateSchema(body)
+          if (!validation.success) {
+            return Response.json(validation.errors, { status: 400 })
+          }
+          const newTodo = await createTodo(validation.data)
+          return Response.json(newTodo, { status: 201 })
+        } catch (err) {
+          console.error(err)
+          return new Response("Internal Server Error", { status: 500 })
         }
-        await createTodo(validation.data)
-        return Response.json({created: true, ...validation.data})
       }
     },
   }
