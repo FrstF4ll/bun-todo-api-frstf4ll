@@ -30,8 +30,8 @@ try{
     const query = db.query(`delete from todos where id = $id`)
     const result = query.run({$id})
     return result
-} catch {
-    console.error("Failed to delete todo");
-    throw new Error("Failed to deleted todo")
+} catch(err){
+    console.error("Failed to delete todo:", err);
+    throw new Error("Failed to delete todo")
 }
 }
