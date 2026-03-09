@@ -22,7 +22,7 @@ const DatabaseTodoSchema = v.pipe(
         $title: schema.title,
         $content: schema.content,
         $due_date: schema.due_date,
-        $done: schema.done ? 1 : 0
+        $done: (schema.done ? 1 : 0) as 0 | 1
     }))
 );
 
