@@ -23,3 +23,15 @@ export const createTodo = (data: { $title: string, $content: string | null, $due
         throw new Error("Failed to post datas")
     }
 };
+
+
+export const deleteTodo = ($id: number) => {
+try{
+    const query = db.query(`delete from todos where id = $id`)
+    const result = query.run({$id})
+    return result
+} catch {
+    console.error("Failed to delete todo");
+    throw new Error("Failed to deleted todo")
+}
+}
