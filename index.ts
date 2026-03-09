@@ -1,5 +1,5 @@
 import { initDB } from "./db.ts";
-import { createTodo, getTodos } from './queries.ts';
+import {createTodo, deleteTodo, getTodos} from './queries.ts';
 import { validateSchema } from "./valibot.ts";
 
 initDB();
@@ -25,7 +25,10 @@ const server = Bun.serve({
       }
     },
     "/todos/:id":{
-      
+      DELETE: req => {
+        const id = Number(req.params.id)
+        const result = deleteTodo(id)
+      return Response.json({success: result.changes > 0, id: id})}
     },
   }
 });
