@@ -1,12 +1,6 @@
 import { initDB } from "./db.ts";
 import { createTodo, getTodos } from './queries.ts';
 import { validateSchema } from "./valibot.ts";
-interface Todo {
-  $title: string;
-  $content: string | null;
-  $due_date: string | null;
-  $done: 0 | 1;
-}
 
 initDB();
 const server = Bun.serve({
