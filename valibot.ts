@@ -1,26 +1,33 @@
 import * as v from 'valibot';
-import {string} from "valibot";
+import { string } from "valibot";
 
 
 type ValidationResult =
     | { success: true; data: TodoOutput }
     | { success: false; errors: v.FlatErrors<undefined> };
-type TodoOutput = v.InferOutput<typeof TodoSchema>;
+type TodoOutput = v.InferOutput<typeof DatabaseTodoSchema>;
 
-const dueDateSchema = v.pipe(v.string(), v.isoDate())
+const dateOnlyRegex = /^\d{4}-\d{2}-\d{2}$/;
 
-const DoneSchema = v.pipe(v.boolean(), v.transform((val) =>
-    val ? 1 : 0))
-
-const TodoSchema = v.strictObject({
-    $title: v.string(),
-    $content: v.string(),
-    $due_date: dueDateSchema,
-    $done: DoneSchema
+const ClientTodoSchema = v.strictObject({
+    title: v.pipe(v.string(), v.minLength(1)),
+    content: v.nullable(v.string()),
+    due_date: v.nullable(v.pipe(v.string(), v.regex(dateOnlyRegex))),
+    done: v.optional(v.boolean(), false)
 })
 
+const DatabaseTodoSchema = v.pipe(
+    ClientTodoSchema,
+    v.transform((schema) => ({
+        $title: schema.title,
+        $content: schema.content,
+        $due_date: schema.due_date,
+        $done: schema.done ? 1 : 0
+    }))
+);
+
 export function validateSchema(data: any): ValidationResult {
-    const result = v.safeParse(TodoSchema, data)
+    const result = v.safeParse(DatabaseTodoSchema, data)
     if (result.success) {
         return { success: true, data: result.output };
     } else {
