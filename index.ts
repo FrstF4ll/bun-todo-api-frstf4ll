@@ -24,6 +24,9 @@ const server = Bun.serve({
         }
       }
     },
+    "/todos/:id":{
+      
+    },
   }
 });
 
