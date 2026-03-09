@@ -1,6 +1,6 @@
-import { Database } from "bun:sqlite";
+import {Database} from "bun:sqlite";
 
-const db = new Database("todolist.sqlite", { create: true });
+const db = new Database("todolist.sqlite", {create: true});
 export const initDB = () => db.query(`CREATE TABLE IF NOT EXISTS todos
 (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

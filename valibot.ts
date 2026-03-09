@@ -27,9 +27,9 @@ const DatabaseTodoSchema = v.pipe(
 export function validateSchema(data: any): ValidationResult {
     const result = v.safeParse(DatabaseTodoSchema, data)
     if (result.success) {
-        return { success: true, data: result.output };
+        return {success: true, data: result.output};
     } else {
-        return { success: false, errors: v.flatten(result.issues) };
+        return {success: false, errors: v.flatten(result.issues)};
     }
 }
 
