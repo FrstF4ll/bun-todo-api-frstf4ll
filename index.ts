@@ -6,7 +6,7 @@ import {deleteAllTodos} from "./queries.ts";
 const getCorsHeaders = (req: Request) => {
     const requestHeaders = req.headers.get("Access-Control-Request-Headers") || "Content-Type, Authorization";
     return {
-        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Origin": "*", // TODO : Set up for github pages with link : https://frstf4ll.github.io/web-todo-react/
         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
         "Access-Control-Allow-Headers": requestHeaders,
         "Access-Control-Max-Age": "86400",

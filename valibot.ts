@@ -34,7 +34,7 @@ const PartialDataSchema = v.pipe(
     }))
 )
 
-export function validateSchema(data: any): ValidationResult {
+export function validateSchema(data: unknown): ValidationResult {
     const result = v.safeParse(DatabaseTodoSchema, data)
     if (result.success) {
         return {success: true, data: result.output};
@@ -44,7 +44,7 @@ export function validateSchema(data: any): ValidationResult {
 }
 
 
-export function validateProperty(data: any){
+export function validateProperty(data: unknown){
     const result = v.safeParse(PartialDataSchema, data);
     if (result.success) {
         return {success: true, data: result.output};
