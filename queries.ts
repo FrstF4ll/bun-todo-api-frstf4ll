@@ -21,10 +21,9 @@ export const getTodos = () => {
     try {
         const todos = db.query(`select *
                          from todos`).all()
-        return todos ? todos.map(mapTodo) : []
+        return todos ? todos.map(mapTodo) : null
     } catch {
         throw new Error("Failed to get datas")
-        return []
     }
 };
 
@@ -42,10 +41,9 @@ export const createTodo = (data: {
             RETURNING *
         `);
         const todos = query.get(data);
-        return todos ? [mapTodo(todos)] : []
+        return todos ? [mapTodo(todos)] : null
     } catch {
         throw new Error("Failed to post datas")
-        return []
     }
 };
 
@@ -85,7 +83,7 @@ export const updateTodo = ($id: number, data: any) => {
                                 returning *
         `)
         const result = query.get({$id, ...data})
-        return result ? [mapTodo(result)] : []
+        return result ? [mapTodo(result)] : null
     } catch (err) {
         console.error("Failed to update todo:", err)
         throw new Error("Failed to update todo")
