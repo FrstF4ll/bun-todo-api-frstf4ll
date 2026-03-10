@@ -60,7 +60,8 @@ const server = Bun.serve({
                     console.error(err)
                     throw new Response("Internal Server Error", {status: 500})
                 }
-            }
+            },
+            OPTIONS: () => Response.json({status: 204, headers: CORS_HEADERS})
         },
     }
 });
