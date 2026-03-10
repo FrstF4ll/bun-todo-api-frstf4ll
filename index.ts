@@ -1,7 +1,8 @@
 import { initDB } from "./db.ts";
-import { createTodo, deleteTodo, getTodos, updateTodo } from './queries.ts';
+import {createTodo, deleteTodo, getTodos, type Todo, updateTodo} from './queries.ts';
 import { validateProperty, validateSchema } from "./valibot.ts";
 import {deleteAllTodos} from "./queries.ts";
+import {hexadecimal} from "valibot";
 
 const getCorsHeaders = (req: Request) => {
     const requestHeaders = req.headers.get("Access-Control-Request-Headers") || "Content-Type, Authorization";
@@ -13,22 +14,24 @@ const getCorsHeaders = (req: Request) => {
     };
 };
 
+const sendJson = <T>(body:T ,status: number, req: Bun.BunRequest) => Response.json(body, {status: status, headers: getCorsHeaders(req)})
+
 initDB();
 const server = Bun.serve({
     port: 3000,
     routes: {
         "/todos": {
             OPTIONS: (req) => new Response(null, { status: 204, headers: getCorsHeaders(req) }),
-            GET: (req) => Response.json(getTodos(), { status: 200, headers: getCorsHeaders(req) }),
+            GET: (req) => sendJson(getTodos(), 200, req),
             POST: async req => {
                 try {
                     const body = await req.json();
                     const validation = validateSchema(body)
                     if (!validation.success) {
-                        return Response.json(validation.errors, { status: 400, headers: getCorsHeaders(req) })
+                        return sendJson(validation.errors, 400 ,req)
                     }
                     const newTodo = await createTodo(validation.data)
-                    return Response.json(newTodo, { status: 201, headers: getCorsHeaders(req) })
+                    return sendJson(newTodo,  201, req)
                 } catch (err) {
                     console.error(err)
                     return new Response("Internal Server Error", { status: 500, headers: getCorsHeaders(req) })
@@ -46,9 +49,9 @@ const server = Bun.serve({
                     const id = Number(req.params.id)
                     const result = deleteTodo(id)
                     if (result.changes === 0) {
-                        return Response.json(null, { status: 404, headers: getCorsHeaders(req) })
+                        return sendJson(null,  404, req)
                     }
-                    return Response.json(null, { status: 204, headers: getCorsHeaders(req) })
+                    return sendJson(null, 204,  req)
                 } catch (err) {
                     console.error(err)
                     return new Response("Internal Server Error", { status: 500, headers: getCorsHeaders(req) })
@@ -59,20 +62,20 @@ const server = Bun.serve({
                     const body = await req.json()
                     const id = Number(req.params.id)
                     if (isNaN(id)) {
-                        return Response.json({ error: "Invalid ID" }, { status: 400, headers: getCorsHeaders(req) })
+                        return sendJson({ error: "Invalid ID" }, 400, req)
                     }
                     const validation = validateProperty(body)
                     if (!validation.success) {
-                        return Response.json(validation.errors, { status: 400, headers: getCorsHeaders(req) })
+                        return sendJson(validation.errors, 400,req )
                     }
                     const result = updateTodo(id, validation.data)
-                    return Response.json(result, { status: 200, headers: getCorsHeaders(req) })
+                    return sendJson(result,  200, req)
                 } catch (err) {
                     console.error(err)
                     return new Response("Internal Server Error", { status: 500, headers: getCorsHeaders(req) })
                 }
             },
-        }, "/": (req) => Response.json({ error: "Not Found" }, { status: 404, headers: getCorsHeaders(req) })
+        }, "/": (req) => sendJson({ error: "Not Found" }, 404,req)
     }
 });
 
