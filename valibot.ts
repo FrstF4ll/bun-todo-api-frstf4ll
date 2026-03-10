@@ -1,6 +1,4 @@
 import * as v from 'valibot';
-import {safeParse} from "valibot";
-import type {Todos} from "./queries.ts";
 
 type ValidationResult =
     | { success: true; data: TodoOutput }
