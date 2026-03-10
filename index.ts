@@ -1,6 +1,6 @@
 import {initDB} from "./db.ts";
-import {createTodo, deleteTodo, getTodos} from './queries.ts';
-import {validateSchema} from "./valibot.ts";
+import {createTodo, deleteTodo, getTodos, updateTodo} from './queries.ts';
+import {validateProperty, validateSchema} from "./valibot.ts";
 
 initDB();
 const server = Bun.serve({
@@ -10,7 +10,6 @@ const server = Bun.serve({
             GET: () => Response.json(getTodos()),
             POST: async req => {
                 try {
-
                     const body = await req.json();
                     const validation = validateSchema(body)
                     if (!validation.success) {
@@ -33,6 +32,24 @@ const server = Bun.serve({
                         return Response.json(null, {status: 404})
                     }
                     return Response.json(null, {status: 204})
+                } catch (err) {
+                    console.error(err)
+                    throw new Response("Internal Server Error", {status: 500})
+                }
+            },
+            PATCH: async req => {
+                try {
+                    const body = await req.json()
+                    const id = Number(req.params.id)
+                    if(isNaN(id)){
+                        return Response.json({error: "Invalid ID"}, {status: 400})
+                    }
+                    const validation = validateProperty(body)
+                    if (!validation.success) {
+                        return Response.json(validation.errors, {status: 400})
+                    }
+                    const result = updateTodo(id, validation.data)
+                    return Response.json(result)
                 } catch (err) {
                     console.error(err)
                     throw new Response("Internal Server Error", {status: 500})

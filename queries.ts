@@ -1,5 +1,12 @@
 import db from "./db";
 
+export interface Todos {
+    $title: string,
+    $content: string | null,
+    $due_date: string | null,
+    $done: 0 | 1
+}
+
 export const getTodos = () => {
     try {
         return db.query(`select *
@@ -39,5 +46,24 @@ export const deleteTodo = ($id: number) => {
     } catch (err) {
         console.error("Failed to delete todo:", err);
         throw new Error("Failed to delete todo")
+    }
+}
+
+
+export const updateTodo = ($id: number, data: any) => {
+    try {
+        const query = db.query(`update todos
+                                set title    = COALESCE($title, title),
+                                    content  = coalesce($content, content),
+                                    due_date = coalesce($due_date, due_date),
+                                    done     = coalesce($done, done)
+                                where id = $id
+                                returning *
+        `)
+        const result = query.get({$id, ...data})
+        return result
+    } catch (err) {
+        console.error("Failed to update todo:", err)
+        throw new Error("Failed to update todo")
     }
 }

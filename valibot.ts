@@ -24,6 +24,16 @@ const DatabaseTodoSchema = v.pipe(
     }))
 );
 
+const PartialDataSchema = v.pipe(
+    v.partial(ClientTodoSchema),
+    v.transform((schema) => ({
+        $title: schema.title,
+        $content: schema.content,
+        $due_date: schema.due_date,
+        $done: (schema.done !== undefined ? (schema.done ? 1 : 0) : undefined)
+    }))
+)
+
 export function validateSchema(data: any): ValidationResult {
     const result = v.safeParse(DatabaseTodoSchema, data)
     if (result.success) {
@@ -33,3 +43,12 @@ export function validateSchema(data: any): ValidationResult {
     }
 }
 
+
+export function validateProperty(data: any){
+    const result = v.safeParse(PartialDataSchema, data);
+    if (result.success) {
+        return {success: true, data: result.output};
+    } else {
+        return {success: false, errors: v.flatten(result.issues)};
+    }
+}
