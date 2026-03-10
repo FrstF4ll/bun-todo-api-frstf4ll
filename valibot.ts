@@ -46,10 +46,10 @@ export function validateSchema(data: any): ValidationResult {
 }
 
 
-export function validateProperty(data: any): ValidationResult {
+export function validateProperty(data: any){
     const result = v.safeParse(PartialDataSchema, data);
     if (result.success) {
-        return {success: true, data: result.output as TodoOutput};
+        return {success: true, data: result.output};
     } else {
         return {success: false, errors: v.flatten(result.issues)};
     }
