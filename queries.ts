@@ -7,12 +7,24 @@ export interface Todos {
     $done: 0 | 1
 }
 
+interface BunSQLiteResult {
+    changes: number;
+    lastInsertRowid: number | bigint;
+}
+
+const mapTodo = (row: any): Todos => ({
+    ...row,
+    done: row.done === 1
+});
+
 export const getTodos = () => {
     try {
-        return db.query(`select *
+        const todos = db.query(`select *
                          from todos`).all()
+        return todos ? todos.map(mapTodo) : []
     } catch {
         throw new Error("Failed to get datas")
+        return []
     }
 };
 
@@ -29,9 +41,11 @@ export const createTodo = (data: {
             VALUES ($title, $content, $due_date, $done)
             RETURNING *
         `);
-        return query.get(data);
+        const todos = query.get(data);
+        return todos ? [mapTodo(todos)] : []
     } catch {
         throw new Error("Failed to post datas")
+        return []
     }
 };
 
@@ -41,11 +55,21 @@ export const deleteTodo = ($id: number) => {
         const query = db.query(`delete
                                 from todos
                                 where id = $id`)
-        const result = query.run({$id})
+        const result = query.run({$id}) as unknown as BunSQLiteResult
         return result
     } catch (err) {
         console.error("Failed to delete todo:", err);
         throw new Error("Failed to delete todo")
+    }
+}
+
+export const deleteAllTodos = () => {
+    try {
+        const query = db.query(`DELETE FROM todos`);
+        return query.run(); // Vide tout
+    } catch (err) {
+        console.error("Failed to clear database:", err);
+        throw new Error("Failed to clear database");
     }
 }
 
@@ -61,7 +85,7 @@ export const updateTodo = ($id: number, data: any) => {
                                 returning *
         `)
         const result = query.get({$id, ...data})
-        return result
+        return result ? [mapTodo(result)] : []
     } catch (err) {
         console.error("Failed to update todo:", err)
         throw new Error("Failed to update todo")

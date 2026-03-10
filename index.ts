@@ -1,6 +1,7 @@
 import { initDB } from "./db.ts";
 import { createTodo, deleteTodo, getTodos, updateTodo } from './queries.ts';
 import { validateProperty, validateSchema } from "./valibot.ts";
+import {deleteAllTodos} from "./queries.ts";
 
 const getCorsHeaders = (req: Request) => {
     const requestHeaders = req.headers.get("Access-Control-Request-Headers") || "Content-Type, Authorization";
@@ -32,6 +33,10 @@ const server = Bun.serve({
                     console.error(err)
                     return new Response("Internal Server Error", { status: 500, headers: getCorsHeaders(req) })
                 }
+            },
+            DELETE: (req) => {
+                deleteAllTodos();
+                return new Response(null, { status: 204, headers: getCorsHeaders(req) });
             }
         },
         "/todos/:id": {
