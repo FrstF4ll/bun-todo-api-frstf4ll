@@ -41,6 +41,9 @@ const server = Bun.serve({
                 try {
                     const body = await req.json()
                     const id = Number(req.params.id)
+                    if(isNaN(id)){
+                        return Response.json({error: "Invalid ID"}, {status: 400})
+                    }
                     const validation = validateProperty(body)
                     if (!validation.success) {
                         return Response.json(validation.errors, {status: 400})
