@@ -1,26 +1,28 @@
 import db from "./db";
 
-export interface Todos {
+export interface SQLBindings {
     $title: string,
     $content: string | null,
     $due_date: string | null,
     $done: 0 | 1
 }
 
-export interface Todo {
-    id: number;
-    title: string;
-    content: string | null;
-    due_date: string | null;
-    done: boolean;
+export interface SQLRow {
+    id: number,
+    title: string,
+    content: string | null,
+    due_date: string | null,
+    done: 0 | 1
 }
+
+export type Todo = Omit<SQLRow, 'done'> & { done: boolean }
 
 interface BunSQLiteResult {
     changes: number;
     lastInsertRowid: number | bigint;
 }
 
-const mapTodo = (row: any): Todos => ({
+const parseDone = (row: SQLRow): Todo => ({
     ...row,
     done: row.done === 1
 });
@@ -28,40 +30,33 @@ const mapTodo = (row: any): Todos => ({
 export const getTodos = () => {
     try {
         const todos = db.query(`select *
-                         from todos`).all()
-        return todos ? todos.map(mapTodo) : null
+                                from todos`).all() as SQLRow[]
+        return todos.map(parseDone)
     } catch {
         throw new Error("Failed to get datas")
     }
 };
 
 
-export const createTodo = (data: {
-    $title: string,
-    $content: string | null,
-    $due_date: string | null,
-    $done: 0 | 1
-}) => {
+export const createTodo = (data: SQLBindings) => {
     try {
-        const query = db.query(`
+        const result = db.query(`
             INSERT INTO todos (title, content, due_date, done)
             VALUES ($title, $content, $due_date, $done)
             RETURNING *
-        `);
-        const todos = query.get(data);
-        return todos ? [mapTodo(todos)] : null
-    } catch {
+        `).get(data as any) as SQLRow | null;
+        return result ? [parseDone(result)] : null
+    } catch (err) {
+        console.error(err)
         throw new Error("Failed to post datas")
     }
 };
 
-
 export const deleteTodo = ($id: number) => {
     try {
-        const query = db.query(`delete
-                                from todos
-                                where id = $id`)
-        const result = query.run({$id}) as unknown as BunSQLiteResult
+        const result = db.query(`delete
+                                 from todos
+                                 where id = $id`).run({$id}) as unknown as BunSQLiteResult
         return result
     } catch (err) {
         console.error("Failed to delete todo:", err);
@@ -71,7 +66,8 @@ export const deleteTodo = ($id: number) => {
 
 export const deleteAllTodos = () => {
     try {
-        const query = db.query(`DELETE FROM todos`);
+        const query = db.query(`DELETE
+                                FROM todos`);
         return query.run();
     } catch (err) {
         console.error("Failed to clear database:", err);
@@ -80,18 +76,17 @@ export const deleteAllTodos = () => {
 }
 
 
-export const updateTodo = ($id: number, data: any) => {
+export const updateTodo = (id: number, data: Partial<SQLBindings>) => {
     try {
-        const query = db.query(`update todos
-                                set title    = COALESCE($title, title),
-                                    content  = coalesce($content, content),
-                                    due_date = coalesce($due_date, due_date),
-                                    done     = coalesce($done, done)
-                                where id = $id
-                                returning *
-        `)
-        const result = query.get({$id, ...data})
-        return result ? [mapTodo(result)] : null
+        const result = db.query(`update todos
+                                 set title    = coalesce($title, title),
+                                     content  = coalesce($content, content),
+                                     due_date = coalesce($due_date, due_date),
+                                     done     = coalesce($done, done)
+                                 where id = $id
+                                 returning *
+        `).get({$id: id, ...data} as any) as SQLRow | null
+        return result ? [parseDone(result)] : null
     } catch (err) {
         console.error("Failed to update todo:", err)
         throw new Error("Failed to update todo")
