@@ -46,7 +46,9 @@ const server = Bun.serve({
                     const validation = parseRequest(validateProperty, {req, id, body});
                     if (validation.error) return validation.error
                     const result = updateTodo(id, validation.data)
-                    return sendResponse({req, status: HTTP.SUCCESS.OK, body: result})
+                    return result
+                        ? sendResponse({req, status: HTTP.SUCCESS.OK, body: result})
+                        : sendResponse({req, status: HTTP.FAIL.NOT_FOUND})
                 } catch (err) {
                     console.error(err)
                     return sendResponse({req, status: HTTP.FAIL.SERVER_ERROR})
