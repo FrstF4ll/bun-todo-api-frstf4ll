@@ -12,7 +12,7 @@ export interface Todo {
     title: string;
     content: string | null;
     due_date: string | null;
-    done: boolean; // Un vrai boolean
+    done: boolean;
 }
 
 interface BunSQLiteResult {
