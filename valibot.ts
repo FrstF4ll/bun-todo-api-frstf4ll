@@ -18,7 +18,7 @@ const toSQLBindings = (data: Partial<ClientTodo>) => ({
     $done: data.done !== undefined ? (data.done ? 1 : 0) as 0 | 1 : undefined
 })
 
-const fullDataSchema = v.pipe(ClientTodoSchema, v.transform(toSQLBindings as (data: ClientTodo) => ReturnType<typeof toSQLBindings>))
+const fullDataSchema = v.pipe(ClientTodoSchema, v.transform(data => toSQLBindings(data)))
 const PartialDataSchema = v.pipe(v.partial(ClientTodoSchema), v.transform(toSQLBindings))
 
 type Schema = typeof fullDataSchema | typeof PartialDataSchema
