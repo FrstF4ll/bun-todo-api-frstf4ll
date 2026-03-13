@@ -1,9 +1,9 @@
-type ValidatorFn = (data: unknown) => { success: boolean; data?: any; errors?: any }
+type ValidationResult = { success: boolean; data?: any; errors?: any }
 type statusResponse<T> = {
     req: Bun.BunRequest<string>
     status?: number,
-    body?: T
-    id?: number,
+    body?: T,
+    id?: number
 }
 
 const getCorsHeaders = (req: Bun.BunRequest<string>) => {
@@ -26,19 +26,16 @@ export function sendResponse({ req, status, body }: statusResponse<unknown>) {
     return body ? Response.json(body, init) : new Response(null, init)
 }
 
-export function parseRequest(validator: ValidatorFn, {req, id, body}: statusResponse<unknown>) {
+
+export function parseRequest({ req, id }: statusResponse<unknown>, validation?: ValidationResult,) {
     try {
         if (id !== undefined && isNaN(id)) {
             return { error: sendResponse({ status: HTTP.FAIL.BAD_REQUEST, body: { error: "Invalid ID" }, req }) }
         }
-        if (body) {
-            const validation = validator(body)
-            if (!validation.success) {
-                return { error: sendResponse({ status: HTTP.FAIL.BAD_REQUEST, body: validation.errors, req }) }
-            }
-            return { data: validation.data }
+        if (validation && !validation.success) {
+            return { error: sendResponse({ status: HTTP.FAIL.BAD_REQUEST, body: validation.errors, req }) }
         }
-        return { data: null }
+        return { data: validation?.data ?? null }
     } catch (err) {
         console.error(err)
         return { error: sendResponse({ status: HTTP.FAIL.SERVER_ERROR, req }) }

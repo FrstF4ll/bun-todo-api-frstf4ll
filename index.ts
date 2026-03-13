@@ -14,7 +14,7 @@ const server = Bun.serve({
             POST: async (req) => {
                 try {
                     const body = await req.json()
-                    const validation = parseRequest(validateSchema, {req, body})
+                    const validation = parseRequest({req, body}, validateSchema(body))
                     if (validation.error) return validation.error;
                     const newTodo = createTodo(validation.data)
                     return sendResponse({req, status: HTTP.SUCCESS.CREATED, body: newTodo})
@@ -32,7 +32,7 @@ const server = Bun.serve({
             OPTIONS: (req) => sendResponse({req, status: HTTP.SUCCESS.NO_CONTENT}),
             DELETE: (req) => {
                 const id = Number(req.params.id)
-                const validation = parseRequest(validateSchema, {req, id})
+                const validation = parseRequest({req, id})
                 if (validation.error) return validation.error
                 const result = deleteTodo(id)
                 return result.changes === 0
@@ -43,7 +43,7 @@ const server = Bun.serve({
                 try {
                     const id = Number(req.params.id)
                     const body = await req.json()
-                    const validation = parseRequest(validateProperty, {req, id, body});
+                    const validation = parseRequest({req, id, body}, validateProperty(body));
                     if (validation.error) return validation.error
                     const result = updateTodo(id, validation.data)
                     return result
