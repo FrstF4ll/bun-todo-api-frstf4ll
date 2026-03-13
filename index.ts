@@ -34,8 +34,10 @@ const server = Bun.serve({
                 const id = Number(req.params.id)
                 const validation = parseRequest(validateSchema, {req, id})
                 if (validation.error) return validation.error
-                deleteTodo(id)
-                return sendResponse({req, status: HTTP.SUCCESS.NO_CONTENT})
+                const result = deleteTodo(id)
+                return result.changes === 0
+                    ?  sendResponse({req, status: HTTP.FAIL.NOT_FOUND})
+                    : sendResponse({req, status: HTTP.SUCCESS.NO_CONTENT})
             },
             PATCH: async (req) => {
                 try {
