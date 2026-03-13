@@ -1,4 +1,10 @@
-import {validateSchema} from "./valibot.ts";
+type ValidatorFn = (data: unknown) => { success: boolean; data?: any; errors?: any }
+type statusResponse<T> = {
+    req: Bun.BunRequest<string>
+    status?: number,
+    body?: T
+    id?: number,
+}
 
 const getCorsHeaders = (req: Bun.BunRequest<string>) => {
     const requestHeaders = req.headers.get("Access-Control-Request-Headers") || "Content-Type, Authorization";
@@ -9,14 +15,6 @@ const getCorsHeaders = (req: Bun.BunRequest<string>) => {
         "Access-Control-Max-Age": "86400",
     };
 };
-type ValidatorFn = (data: unknown) => { success: boolean; data?: any; errors?: any }
-type statusResponse<T> = {
-    req: Bun.BunRequest<string>
-    status?: number,
-    body?: T
-    id?: number,
-}
-
 export const HTTP = {
     SUCCESS: {OK: 200, CREATED: 201, NO_CONTENT: 204},
     FAIL: {BAD_REQUEST: 400, NOT_FOUND: 404, SERVER_ERROR: 500}
