@@ -15,6 +15,7 @@ const server = Bun.serve({
                 try {
                     const body = await req.json()
                     const validation = parseRequest(validateSchema, {req, body})
+                    if (validation.error) return validation.error;
                     const newTodo = createTodo(validation.data)
                     return sendResponse({req, status: HTTP.SUCCESS.CREATED, body: newTodo})
                 } catch (err) {
